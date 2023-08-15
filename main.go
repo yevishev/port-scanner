@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -12,13 +13,13 @@ func main() {
 	targetHost := "127.0.0.1"
 	startPort := 1
 	endPort := 65536
-	ch := make(chan struct{}, endPort)
 	fmt.Println("start of scanning")
-
+	var wg sync.WaitGroup
 	for port := startPort; port < endPort; port++ {
+		wg.Add(1)
 		go func (port int)  {
 			defer func ()  {
-				ch <- struct{}{}
+				wg.Done()
 			}()
 			address := fmt.Sprintf("%s:%d", targetHost, port)
 			conn, err := net.DialTimeout("tcp", address, 1 * time.Second)
@@ -29,8 +30,6 @@ func main() {
 			conn.Close()
 		}(port)
 	}
-	for i := 1; i < endPort; i++ {
-		<- ch
-	}
+	wg.Wait()
 	fmt.Printf("end of scanning. time: %.2f\n", time.Since(t).Seconds())
 }
