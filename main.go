@@ -9,11 +9,16 @@ import (
 
 
 func main() {
-	t := time.Now()
-	targetHost := "127.0.0.1"
-	startPort := 1
-	endPort := 65536
+	var (
+		targetHost string
+		startPort = 1
+		endPort = 65536
+	)
+	fmt.Print("enter host address\n")
+	fmt.Scan(&targetHost)
+	
 	fmt.Println("start of scanning")
+	t := time.Now()
 	var wg sync.WaitGroup
 	for port := startPort; port < endPort; port++ {
 		wg.Add(1)
